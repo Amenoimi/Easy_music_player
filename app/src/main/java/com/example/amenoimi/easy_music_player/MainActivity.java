@@ -16,32 +16,34 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import com.example.amenoimi.easy_music_player.msg;
+
 
 public class MainActivity extends AppCompatActivity implements  SurfaceHolder.Callback{
 
-    private SurfaceView mSurfaceView;
-    private SurfaceHolder mSurfaceHolder;
-    private   Canvas canvas=new Canvas();
+   private   Canvas canvas=new Canvas();
     private Thread mThread;
     private Paint mpaint;
+    private  UI ui;
+    private boolean ame_flag=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        mSurfaceView = (SurfaceView) findViewById(R.id.surfaceView);
-        mSurfaceHolder = mSurfaceView.getHolder();
-        mSurfaceView.setZOrderOnTop(true);//处于顶层
-        mSurfaceHolder.setFormat(PixelFormat.TRANSLUCENT);
-        mSurfaceHolder.addCallback(this);
+        ui=new UI(this);
+        ui.mSurfaceView.setZOrderOnTop(true);//处于顶层
+        ui.mSurfaceHolder.setFormat(PixelFormat.TRANSLUCENT);
+        ui.mSurfaceHolder.addCallback(this);
 
 
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        ame_flag = true;
         //定义画笔
         mpaint = new Paint();
         mpaint.setColor(Color.BLUE);
@@ -61,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements  SurfaceHolder.Ca
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
-
+        ame_flag = false;
     }
 
 
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements  SurfaceHolder.Ca
 
             // TODO Auto-generated method stub
 
-            while (true){
+            while (ame_flag){
                 try{
                     Thread.sleep(17);
 
@@ -79,21 +81,22 @@ public class MainActivity extends AppCompatActivity implements  SurfaceHolder.Ca
 
 
 
-                    canvas =  mSurfaceHolder.lockCanvas();
-                    canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR); //清楚掉上一次的画框。
-                    //繪圖區
-                    mpaint.setStrokeWidth(20f);
+                    canvas =  ui.mSurfaceHolder.lockCanvas();
+                    if(ame_flag) {
+                        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR); //清楚掉上一次的画框。
+                        //繪圖區
+                        mpaint.setStrokeWidth(20f);
 
-                    Matrix m = new Matrix();
-                    mpaint.setColor(Color.parseColor("#FF1493"));
-                    mpaint.setStyle(Paint.Style.FILL);//設置填滿
-                    int n=50;
-                    int w=canvas.getWidth()/n;
-                    int tmp=rnd(500);
-                    for(int i= 0;i<n;i++) {
-                        mpaint.setColor(Color.rgb(rnd(255),rnd(255),rnd(255)));
-                        canvas.drawLine(w*i, canvas.getHeight(), w*i, canvas.getHeight()-(tmp*(float)(Math.sin(rnd(360)))), mpaint);
-                    }
+                        Matrix m = new Matrix();
+                        mpaint.setColor(Color.parseColor("#FF1493"));
+                        mpaint.setStyle(Paint.Style.FILL);//設置填滿
+                        int n = 50;
+                        int w = canvas.getWidth() / n;
+                        int tmp = rnd(500);
+                        for (int i = 0; i < n; i++) {
+                            mpaint.setColor(Color.rgb(rnd(255), rnd(255), rnd(255)));
+                            canvas.drawLine(w * i, canvas.getHeight(), w * i, canvas.getHeight() - (tmp * (float) (Math.sin(rnd(360)))), mpaint);
+                        }
 
 
 
@@ -148,8 +151,8 @@ public class MainActivity extends AppCompatActivity implements  SurfaceHolder.Ca
 //                    }
 
 
-                    mSurfaceHolder.unlockCanvasAndPost(canvas);
-
+                        ui.mSurfaceHolder.unlockCanvasAndPost(canvas);
+                    }
 
 
                 } catch (InterruptedException e) {
@@ -210,5 +213,25 @@ public class MainActivity extends AppCompatActivity implements  SurfaceHolder.Ca
     public  int rnd(int r){
        return (int)(Math.random()* r);
     }
+
+
+    @Override
+public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+
+        // 判斷是否按下Back
+      if (keyCode == KeyEvent.KEYCODE_BACK) {
+            // 是否要退出
+          new msg().Show(this,"離開","");
+
+
+      }
+        if (keyCode == KeyEvent.KEYCODE_HOME) {
+            ame_flag=false;
+        }
+      return false;
+
+}
+
 
 }
