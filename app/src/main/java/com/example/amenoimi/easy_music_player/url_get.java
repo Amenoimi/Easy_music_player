@@ -4,13 +4,33 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.view.View;
+
 import com.example.amenoimi.easy_music_player.*;
 public class url_get {
+
+
+    public static void load(MainActivity main){//選擇影片的函式
+
+        final String mimeType = "audio/*";
+
+        final Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType(mimeType);
+        Intent picker = new Intent(Intent.ACTION_GET_CONTENT);
+        picker.setType(mimeType);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        Intent destIntent = Intent.createChooser(picker, "選取音樂");
+        main.startActivityForResult(destIntent,1);
+
+    }
+
+
 
     //---------------------------------------------------uri轉檔案實體位置---------------------------------------------------//
     @TargetApi(19)

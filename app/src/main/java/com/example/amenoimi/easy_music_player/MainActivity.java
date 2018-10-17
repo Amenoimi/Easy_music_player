@@ -1,5 +1,6 @@
 package com.example.amenoimi.easy_music_player;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -10,7 +11,10 @@ import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.media.MediaPlayer;
+import android.media.SoundPool;
 import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
@@ -19,16 +23,24 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
+import android.widget.SeekBar;
+import android.widget.TextView;
+
 import com.example.amenoimi.easy_music_player.msg;
 
+import java.io.IOError;
+import java.io.IOException;
 
-public class MainActivity extends AppCompatActivity implements  SurfaceHolder.Callback{
+
+public class MainActivity extends AppCompatActivity implements  SurfaceHolder.Callback,View.OnClickListener,SeekBar.OnSeekBarChangeListener {
 
    private   Canvas canvas=new Canvas();
     private Thread mThread;
     private Paint mpaint;
     private  UI ui;
     private boolean ame_flag=false;
+    private MediaPlayer  mediaPlayer ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,8 +49,10 @@ public class MainActivity extends AppCompatActivity implements  SurfaceHolder.Ca
         ui.mSurfaceView.setZOrderOnTop(true);//处于顶层
         ui.mSurfaceHolder.setFormat(PixelFormat.TRANSLUCENT);
         ui.mSurfaceHolder.addCallback(this);
-
-
+        ui.b1.setOnClickListener(this);
+        ui.b2.setOnClickListener(this);
+        ui.b3.setOnClickListener(this);
+        mediaPlayer = new MediaPlayer();
     }
 
     @Override
@@ -53,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements  SurfaceHolder.Ca
         mpaint.setStrokeWidth(20f);
         mThread = new Thread(r1);
         mThread.start();
+
 
     }
 
@@ -78,8 +93,12 @@ public class MainActivity extends AppCompatActivity implements  SurfaceHolder.Ca
                     Thread.sleep(17);
 
 
+//                    ui.sb.setProgress(mediaPlayer. getCurrentPosition()+1);
 
-
+//                    ui.sb.setProgress(10);
+                    ui.sb.setMax(mediaPlayer.getDuration());
+//                    ui.sb.setProgress(10);
+                    ui.sb.setProgress(mediaPlayer. getCurrentPosition());
 
                     canvas =  ui.mSurfaceHolder.lockCanvas();
                     if(ame_flag) {
@@ -232,6 +251,54 @@ public boolean onKeyDown(int keyCode, KeyEvent event) {
       return false;
 
 }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
 
+        // 有選擇檔案
+        if ( resultCode == RESULT_OK )
+        {
+            // 取得檔案的 Uri
+            Uri uri = data.getData();
+
+            try {
+                mediaPlayer.setDataSource(url_get.getMediaAbsolutePath(this,uri));
+                mediaPlayer.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+
+        }
+
+
+    }
+
+    @Override
+    public void onClick(View v) {
+        if(v.getId()==R.id.b1)mediaPlayer.start();
+        if(v.getId()==R.id.b2)mediaPlayer.pause();
+        if(v.getId()==R.id.b3){
+            url_get.load(this);
+
+        }
+
+    }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        mediaPlayer.seekTo(progress);
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+
+    }
 }
